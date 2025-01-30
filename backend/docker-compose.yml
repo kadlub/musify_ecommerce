@@ -1,0 +1,91 @@
+version: '3.9'
+
+services:
+  userservice:
+    build:
+      context: ./userService
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/musify
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Dudzio1423
+
+  productservice:
+    build:
+      context: ./productService
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/musify
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Dudzio1423
+    volumes:
+      - ./uploads/products:/uploads/products # Mapowanie katalogu hosta do kontenera
+
+  orderservice:
+    build:
+      context: ./orderService
+    ports:
+      - "8083:8083"
+    networks:
+      - app-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/musify
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Dudzio1423
+
+  reviewservice:
+    build:
+      context: ./reviewService
+    ports:
+      - "8084:8084"
+    networks:
+      - app-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/musify
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Dudzio1423
+
+  api_gateway:
+    build:
+      context: ./api_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      PRODUCT_SERVICE_URI: http://productservice:8082
+      USER_SERVICE_URI: http://userservice:8081
+      ORDER_SERVICE_URI: http://orderservice:8083
+      REVIEW_SERVICE_URI: http://reviewservice:8084
+    depends_on:
+      - userservice
+      - productservice
+      - orderservice
+      - reviewservice
+    networks:
+      - app-network
+
+  database:
+    image: postgres:13
+    container_name: musiffy-database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Dudzio1423
+      POSTGRES_DB: musify
+    volumes:
+      - db-data:/var/lib/postgresql/data # Trwałe przechowywanie danych
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
