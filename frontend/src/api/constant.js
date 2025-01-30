@@ -9,7 +9,7 @@ export const API_URLS = {
     REGISTER: '/api/auth/register',
 }
 
-export const API_BASE_URL = '/api';
+export const API_BASE_URL = '';
 
 
 export const getHeaders = () => {
